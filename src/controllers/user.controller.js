@@ -149,8 +149,8 @@ const logoutUser = asyncHandler( async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1     // this removes the field from document
             }
         },
         {
@@ -171,7 +171,7 @@ const logoutUser = asyncHandler( async (req, res) => {
 })
 
 const refreshAccessToken = asyncHandler( async (req, res) => {
-    const incomingRefreshToken = req.cookies.refreshAccessToken || req.body.refreshAccessToken;
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
     if(!incomingRefreshToken){
         throw new ApiError(401, "Unauthorized request");
     }
@@ -192,7 +192,10 @@ const refreshAccessToken = asyncHandler( async (req, res) => {
             httpOnly: true,
             secure: true
         }
-    
+        
+        res.clearCookie("accessToken");
+        res.clearCookie("refreshToken");
+
         const { accessToken, newRefreshToken } = await generateAccessAndRefreshToken(user._id)
     
         return res.status(200)
@@ -342,7 +345,7 @@ const getUserChannelProfile = asyncHandler( async (req, res) => {
                     $size: "$subscribedTo"
                 },
                 isSubscribed: {
-                    $condition: {
+                    $cond: {
                         if: {$in: [req.user?._id, "$subscribers.subscriber"]},     // user subbscriber(subscription model) me mai hu ya nahi
                         then: true,
                         else: false
@@ -377,7 +380,7 @@ const getWatchHistory = asyncHandler( async (req, res) => {
     const user = await User.aggregate([
         {
             $match: {
-                _id: mongoose.Types.ObjectId(req.user._id)
+                _id: new mongoose.Types.ObjectId(req.user._id)
             }
         },
         {
