@@ -1,0 +1,1 @@
+Aggregation pipeline :- Agar hamare paas 100  document aor kisi condition ko laga ke ham use 50 kar de toh next stage me wo 50 document pe hi application hoga
