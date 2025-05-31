@@ -98,8 +98,7 @@ const registerUser = asyncHandler( async (req, res) => {
         new ApiResponse(201, createdUser, "User registered successfully")
     )
 
-} )
-
+})
 
 const loginUser = asyncHandler( async (req, res) => {
     // req.body se data le aao
