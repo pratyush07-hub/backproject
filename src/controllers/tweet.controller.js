@@ -57,7 +57,8 @@ const getUserTweets = asyncHandler(async (req, res) => {
 })
 
 const updateTweet = asyncHandler(async (req, res) => {
-    const { tweetId, editedTweet } = req.body;
+    const { tweetId } = req.params;
+    const { editedTweet } = req.body;
     if(!editedTweet){
         throw new ApiError(400, "Tweet is not edited")
     }
@@ -78,8 +79,23 @@ const updateTweet = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, updateTweet, "tweet is updated sucessfully"))
 })
 
+
+const deleteTweet = asyncHandler(async (req, res) => {
+    const { tweetId } = req.params;
+    if(!tweetId){
+        throw new ApiError(400, "tweetId not found")
+    }
+    const deleteTweet = await Tweet.findByIdAndDelete(tweetId);
+    if(!deleteTweet){
+        throw new ApiError(400, "Tweet is not deleted")
+    }
+
+    return res.status(200).json(new ApiResponse(200, deleteTweet, "tweet deleted successfully"))
+})
+
 export {
     createTweet,
     getUserTweets,
-    updateTweet
+    updateTweet,
+    deleteTweet
 }
